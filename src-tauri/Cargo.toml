@@ -1,0 +1,19 @@
+[package]
+name = "treasure-mark"
+version = "0.0.1"
+description = "藏宝书签"
+authors = ["you"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0", features = ["shell-open"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+webbrowser = "0.8"
+
+[lib]
+name = "treasure_mark_lib"
+crate-type = ["cdylib"]

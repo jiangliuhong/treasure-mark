@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "藏宝书签",
+  "version": "0.0.1",
+  "description": "现代化的书签管理Chrome插件",
+  "permissions": [
+    "storage",
+    "tabs",
+    "bookmarks"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "藏宝书签",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
