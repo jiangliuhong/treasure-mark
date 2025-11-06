@@ -7,12 +7,14 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      props: true
     },
     {
       path: '/bookmarks',
       name: 'bookmarks',
-      component: () => import('../views/BookmarksView.vue')
+      component: () => import('../views/BookmarksView.vue'),
+      props: true
     }
   ]
 })

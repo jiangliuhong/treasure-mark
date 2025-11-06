@@ -1,19 +1,25 @@
 <template>
-  <div id="app">
+  <div id="app" :data-theme="theme ? 'dark' : 'light'">
     <n-config-provider :theme="theme">
-      <n-layout>
-        <n-layout-header bordered>
-          <div class="header-content">
-            <h1>藏宝书签</h1>
-            <n-space>
-              <n-button @click="switchTheme">切换主题</n-button>
-            </n-space>
-          </div>
-        </n-layout-header>
-        <n-layout-content content-style="padding: 24px;">
-          <router-view />
-        </n-layout-content>
-      </n-layout>
+      <n-message-provider>
+        <n-layout style="height: 100vh;">
+          <n-layout-header bordered style="height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;">
+            <h2 style="margin: 0; font-size: 1.2rem;">藏宝书签</h2>
+            <n-button size="small" @click="switchTheme">切换主题</n-button>
+          </n-layout-header>
+          <n-layout has-sider style="height: calc(100vh - 48px);">
+            <n-layout-sider
+              bordered
+              :width="220"
+            >
+              <GroupTree @group-selected="handleGroupSelected" />
+            </n-layout-sider>
+            <n-layout-content content-style="padding: 16px;">
+              <router-view :selected-group-id="selectedGroupId" />
+            </n-layout-content>
+          </n-layout>
+        </n-layout>
+      </n-message-provider>
     </n-config-provider>
   </div>
 </template>
@@ -21,29 +27,49 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { darkTheme, lightTheme, type GlobalTheme } from 'naive-ui'
+import GroupTree from './components/GroupTree.vue'
+import { useGroupStore } from '@/stores/groups'
 
 const theme = ref<GlobalTheme | null>(null)
+const groupStore = useGroupStore()
+const selectedGroupId = ref<number | null>(null)
 
 const switchTheme = () => {
   theme.value = theme.value === null ? darkTheme : null
+}
+
+const handleGroupSelected = (groupId: number | null) => {
+  selectedGroupId.value = groupId
 }
 </script>
 
 <style scoped>
 #app {
   height: 100vh;
+  transition: all 0.3s ease;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  height: 64px;
+/* 暗色主题全局样式 */
+[data-theme="dark"] {
+  background: #1a202c;
+  color: #e2e8f0;
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
+[data-theme="dark"] h2 {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .n-layout-header {
+  background: #2d3748;
+  border-color: rgba(159, 122, 234, 0.2);
+}
+
+[data-theme="dark"] .n-layout-sider {
+  background: #2d3748;
+  border-color: rgba(159, 122, 234, 0.2);
+}
+
+[data-theme="dark"] .n-layout-content {
+  background: #1a202c;
 }
 </style>

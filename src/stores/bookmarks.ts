@@ -5,9 +5,9 @@ export interface Bookmark {
   id: number
   title: string
   url: string
-  category: string
   description: string
   createdAt: string
+  groupId: number
   tags?: string[]
 }
 
@@ -68,13 +68,20 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
       bookmark.title.toLowerCase().includes(lowerQuery) ||
       bookmark.url.toLowerCase().includes(lowerQuery) ||
       bookmark.description.toLowerCase().includes(lowerQuery) ||
-      bookmark.category.toLowerCase().includes(lowerQuery) ||
       bookmark.tags?.some(tag => tag.toLowerCase().includes(lowerQuery))
     )
   }
   
-  const getBookmarksByCategory = (category: string) => {
-    return bookmarks.value.filter(bookmark => bookmark.category === category)
+  const getBookmarksByGroup = (groupId: number) => {
+    return bookmarks.value.filter(bookmark => bookmark.groupId === groupId)
+  }
+
+  const getBookmarksByGroups = (groupIds: number[]) => {
+    return bookmarks.value.filter(bookmark => groupIds.includes(bookmark.groupId))
+  }
+
+  const getAllBookmarks = () => {
+    return bookmarks.value
   }
   
   // 初始化时加载数据
@@ -82,13 +89,14 @@ export const useBookmarkStore = defineStore('bookmarks', () => {
   
   return {
     bookmarks,
-    categories,
     addBookmark,
     updateBookmark,
     deleteBookmark,
     getBookmarkById,
     searchBookmarks,
-    getBookmarksByCategory,
+    getBookmarksByGroup,
+    getBookmarksByGroups,
+    getAllBookmarks,
     loadBookmarks,
     saveBookmarks
   }

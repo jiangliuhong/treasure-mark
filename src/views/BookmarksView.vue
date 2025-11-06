@@ -54,6 +54,10 @@ import { ref, computed, h } from 'vue'
 import { useMessage, NButton, NForm, NFormItem } from 'naive-ui'
 import { useBookmarkStore } from '@/stores/bookmarks'
 
+const props = defineProps<{
+  selectedGroupId: number | null
+}>()
+
 interface Bookmark {
   id: number
   title: string
