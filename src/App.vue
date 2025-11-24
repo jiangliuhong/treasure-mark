@@ -5,7 +5,10 @@
         <n-layout style="height: 100vh;">
           <n-layout-header bordered style="height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;">
             <h2 style="margin: 0; font-size: 1.2rem;">藏宝书签</h2>
-            <n-button size="small" @click="switchTheme">切换主题</n-button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <n-button size="small" @click="switchTheme">切换主题</n-button>
+              <UserAvatar />
+            </div>
           </n-layout-header>
           <n-layout has-sider style="height: calc(100vh - 48px);">
             <n-layout-sider
@@ -21,6 +24,9 @@
         </n-layout>
       </n-message-provider>
     </n-config-provider>
+    
+    <!-- 设备登录模态框 -->
+    <DeviceLoginModal />
   </div>
 </template>
 
@@ -28,6 +34,8 @@
 import { ref } from 'vue'
 import { darkTheme, lightTheme, type GlobalTheme } from 'naive-ui'
 import GroupTree from './components/GroupTree.vue'
+import UserAvatar from './components/UserAvatar.vue'
+import DeviceLoginModal from './components/DeviceLoginModal.vue'
 import { useGroupStore } from '@/stores/groups'
 
 const theme = ref<GlobalTheme | null>(null)

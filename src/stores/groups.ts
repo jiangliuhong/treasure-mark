@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { GistService } from '@/services/gist'
+import { useUserStore } from './user'
 
 export interface Group {
   id: number
@@ -21,11 +23,18 @@ export const useGroupStore = defineStore('groups', () => {
   ])
   
   const nextId = ref(2)
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
   
-  const loadGroups = () => {
-    const saved = localStorage.getItem('treasure-mark-groups')
-    if (saved) {
-      groups.value = JSON.parse(saved)
+  const loadGroups = async () => {
+    const userStore = useUserStore()
+    
+    // 如果用户未登录，使用localStorage
+    if (!userStore.isLoggedIn) {
+      const saved = localStorage.getItem('treasure-mark-groups')
+      if (saved) {
+        groups.value = JSON.parse(saved)
+      }
       // 确保默认分组存在
       if (!groups.value.some(g => g.isDefault)) {
         groups.value.unshift({
@@ -36,15 +45,88 @@ export const useGroupStore = defineStore('groups', () => {
           isDefault: true
         })
       }
+      // 计算下一个ID
+      const maxId = Math.max(...groups.value.map(g => g.id))
+      nextId.value = maxId + 1
+      return
     }
     
-    // 计算下一个ID
-    const maxId = Math.max(...groups.value.map(g => g.id))
-    nextId.value = maxId + 1
+    // 用户已登录，从Gist加载
+    isLoading.value = true
+    error.value = null
+    
+    try {
+      const data = await GistService.loadData()
+      groups.value = data.groups || []
+      // 确保默认分组存在
+      if (!groups.value.some(g => g.isDefault)) {
+        groups.value.unshift({
+          id: 1,
+          name: '默认分组',
+          parentId: null,
+          children: [],
+          isDefault: true
+        })
+      }
+      // 计算下一个ID
+      const maxId = Math.max(...groups.value.map(g => g.id))
+      nextId.value = maxId + 1
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '加载分组失败'
+      // 如果Gist加载失败，回退到localStorage
+      const saved = localStorage.getItem('treasure-mark-groups')
+      if (saved) {
+        groups.value = JSON.parse(saved)
+      }
+      // 确保默认分组存在
+      if (!groups.value.some(g => g.isDefault)) {
+        groups.value.unshift({
+          id: 1,
+          name: '默认分组',
+          parentId: null,
+          children: [],
+          isDefault: true
+        })
+      }
+      // 计算下一个ID
+      const maxId = Math.max(...groups.value.map(g => g.id))
+      nextId.value = maxId + 1
+    } finally {
+      isLoading.value = false
+    }
   }
   
-  const saveGroups = () => {
-    localStorage.setItem('treasure-mark-groups', JSON.stringify(groups.value))
+  const saveGroups = async () => {
+    const userStore = useUserStore()
+    
+    // 如果用户未登录，使用localStorage
+    if (!userStore.isLoggedIn) {
+      localStorage.setItem('treasure-mark-groups', JSON.stringify(groups.value))
+      return
+    }
+    
+    // 用户已登录，保存到Gist
+    isLoading.value = true
+    error.value = null
+    
+    try {
+      // 获取当前书签数据
+      const { useBookmarkStore } = await import('./bookmarks')
+      const bookmarkStore = useBookmarkStore()
+      
+      const data = {
+        groups: groups.value,
+        bookmarks: bookmarkStore.bookmarks
+      }
+      
+      await GistService.saveData(data)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '保存分组失败'
+      // 如果Gist保存失败，仍然保存到localStorage作为备份
+      localStorage.setItem('treasure-mark-groups', JSON.stringify(groups.value))
+    } finally {
+      isLoading.value = false
+    }
   }
   
   const addGroup = (name: string, parentId: number | null = null): Group | null => {
@@ -156,6 +238,8 @@ export const useGroupStore = defineStore('groups', () => {
   
   return {
     groups,
+    isLoading,
+    error,
     addGroup,
     updateGroup,
     deleteGroup,

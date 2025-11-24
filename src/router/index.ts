@@ -15,6 +15,11 @@ const router = createRouter({
       name: 'bookmarks',
       component: () => import('../views/BookmarksView.vue'),
       props: true
+    },
+    {
+      path: '/auth/callback',
+      name: 'auth-callback',
+      component: () => import('../views/AuthCallbackView.vue')
     }
   ]
 })
