@@ -14,15 +14,21 @@
         round
       />
     </n-dropdown>
+    
+    <DeviceAuthModal
+      v-model:show="showAuthModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { NAvatar, NDropdown } from 'naive-ui'
 import { useUserStore } from '@/stores/user'
+import DeviceAuthModal from './DeviceAuthModal.vue'
 
 const userStore = useUserStore()
+const showAuthModal = ref(false)
 
 // 默认头像
 const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTgiIGN5PSIxOCIgcj0iMTgiIGZpbGw9IiM0MjQ1NDUiLz4KPGNpcmNsZSBjeD0iMTgiIGN5PSIxNCIgcj0iNSIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE4IDIyQzEyLjQ3NzIgMjIgOCAyNi40NzcyIDggMzJIMjhDMjggMjYuNDc3MiAyMy41MjI4IDIyIDE4IDIyWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'
@@ -76,8 +82,12 @@ const dropdownOptions = computed(() => {
   } else {
     return [
       {
-        label: 'GitHub登录',
+        label: 'GitHub登录（推荐）',
         key: 'login'
+      },
+      {
+        label: '使用Personal Access Token',
+        key: 'token'
       }
     ]
   }
@@ -86,8 +96,22 @@ const dropdownOptions = computed(() => {
 const handleDropdownSelect = async (key: string) => {
   switch (key) {
     case 'login':
-      userStore.login()
+      showAuthModal.value = true
       break
+    case 'token': {
+      // 弹出输入框让用户输入Personal Access Token
+      const token = prompt('请输入您的GitHub Personal Access Token:\n\n获取方法：\n1. 访问 https://github.com/settings/tokens\n2. 点击 "Generate new token (classic)"\n3. 选择权限：user:email, gist\n4. 复制生成的token并粘贴在此处')
+      
+      if (token) {
+        try {
+          await userStore.loginWithToken(token.trim())
+        } catch (err) {
+          console.error('Token登录失败:', err)
+          alert('Token登录失败，请检查token是否正确')
+        }
+      }
+      break
+    }
     case 'logout':
       userStore.logout()
       break

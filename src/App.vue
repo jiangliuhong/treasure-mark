@@ -24,9 +24,6 @@
         </n-layout>
       </n-message-provider>
     </n-config-provider>
-    
-    <!-- 设备登录模态框 -->
-    <DeviceLoginModal />
   </div>
 </template>
 
@@ -35,7 +32,6 @@ import { ref } from 'vue'
 import { darkTheme, lightTheme, type GlobalTheme } from 'naive-ui'
 import GroupTree from './components/GroupTree.vue'
 import UserAvatar from './components/UserAvatar.vue'
-import DeviceLoginModal from './components/DeviceLoginModal.vue'
 import { useGroupStore } from '@/stores/groups'
 
 const theme = ref<GlobalTheme | null>(null)

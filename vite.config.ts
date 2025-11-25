@@ -11,7 +11,15 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: true,
+    proxy: {
+      '/api/github': {
+        target: 'https://github.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/github/, ''),
+        secure: true
+      }
+    }
   },
   build: {
     target: 'esnext',
